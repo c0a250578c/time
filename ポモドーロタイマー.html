@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ポモドーロタイマー Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f3f5;
+            --text-primary: #212529;
+            --text-secondary: #495057;
+            --text-tertiary: #868e96;
+            --border-color: #dee2e6;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --accent-work: #667eea;
+            --accent-break: #38ef7d;
+            --accent-long-break: #fa709a;
+            --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3a3a3a;
+            --text-primary: #e9ecef;
+            --text-secondary: #adb5bd;
+            --text-tertiary: #868e96;
+            --border-color: #495057;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 1.2em;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .timer-card {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .mode-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: var(--transition);
+        }
+
+        .mode-btn:hover {
+            border-color: var(--accent-work);
+        }
+
+        .mode-btn.active {
+            background: var(--accent-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .timer-display {
+            font-size: 8em;
+            font-weight: 700;
+            margin: 40px 0;
+            font-variant-numeric: tabular-nums;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 16px 40px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .control-btn.primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .control-btn.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .task-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1em;
+            transition: var(--transition);
+        }
+
+        .task-input:focus {
+            outline: none;
+            border-color: var(--accent-work);
+        }
+
+        .add-btn {
+            padding: 12px 24px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .task-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            transition: var(--transition);
+        }
+
+        .task-item:hover {
+            transform: translateX(4px);
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: var(--accent-work);
+        }
+
+        .task-text {
+            flex: 1;
+            color: var(--text-primary);
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: var(--text-tertiary);
+        }
+
+        .delete-btn {
+            padding: 6px 14px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .delete-btn:hover {
+            background: #ff5252;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 120px;
+            margin-top: 20px;
+            gap: 4px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: var(--accent-gradient);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            min-height: 8px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+        }
+
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75em;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+        }
+
+        .chart-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            box-shadow: var(--shadow-lg);
+            padding: 30px;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .settings-title {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            background: var(--border-color);
+        }
+
+        .setting-group {
+            margin-bottom: 30px;
+        }
+
+        .setting-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .setting-description {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: var(--transition);
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: var(--transition);
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background: var(--accent-gradient);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(28px);
+        }
+
+        .slider-input {
+            width: 100%;
+            margin: 10px 0;
+            accent-color: var(--accent-work);
+        }
+
+        .slider-value {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 8px;
+        }
+
+        .notification-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            padding: 20px 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification-badge.show {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-icon {
+            font-size: 1.5em;
+        }
+
+        .notification-text {
+            font-weight: 600;
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .timer-display {
+                font-size: 5em;
+            }
+
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .timer-display {
+                font-size: 4em;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .timer-controls {
+                flex-direction: column;
+            }
+
+            .control-btn {
+                width: 100%;
+            }
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 20px;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            stroke: var(--border-color);
+            fill: none;
+            stroke-width: 8;
+        }
+
+        .progress-ring-progress {
+            stroke: url(#gradient);
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .progress-ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">🍅 Pomodoro Pro</div>
+        <div class="header-controls">
+            <button class="icon-btn" id="themeToggle" title="ダークモード切替">🌙</button>
+            <button class="icon-btn" id="settingsBtn" title="設定">⚙️</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-panel">
+            <div class="timer-card">
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="work">🎯 作業 (25分)</button>
+                    <button class="mode-btn" data-mode="shortBreak">☕ 短い休憩 (5分)</button>
+                    <button class="mode-btn" data-mode="longBreak">🌴 長い休憩 (15分)</button>
+                </div>
+
+                <div class="progress-ring">
+                    <svg width="300" height="300">
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="progress-ring-circle" cx="150" cy="150" r="140"></circle>
+                        <circle class="progress-ring-progress" id="progressCircle" cx="150" cy="150" r="140"></circle>
+                    </svg>
+                    <div class="progress-ring-text" id="timerDisplay">25:00</div>
+                </div>
+
+                <div class="timer-controls">
+                    <button class="control-btn primary" id="startBtn">▶ スタート</button>
+                    <button class="control-btn secondary" id="pauseBtn">⏸ 一時停止</button>
+                    <button class="control-btn secondary" id="resetBtn">🔄 リセット</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📝 今日のタスク</div>
+                <div class="task-input-group">
+                    <input type="text" class="task-input" id="taskInput" placeholder="タスクを入力...">
+                    <button class="add-btn" id="addTaskBtn">追加</button>
+                </div>
+                <ul class="task-list" id="taskList"></ul>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="card">
+                <div class="card-title">📊 統計</div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-number" id="todayCount">0</div>
+                        <div class="stat-label">今日の完了セッション</div>
+                    </div>
+                </div>
+                <div class="chart" id="weeklyChart"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <div class="settings-title">⚙️ 設定</div>
+            <button class="close-btn" id="closeSettings">✕</button>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">デスクトップ通知</label>
+            <div class="setting-description">タイマー終了時にデスクトップ通知を表示します</div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="notificationToggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">音声通知</label>
+            <div class="setting-description">タイマー終了時に音で通知します</div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="soundToggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">音量</label>
+            <input type="range" class="slider-input" id="volumeSlider" min="0" max="100" value="50">
+            <div class="slider-value"><span id="volumeValue">50</span>%</div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">自動開始</label>
+            <div class="setting-description">タイマー終了後、自動的に次のセッションを開始します</div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="autoStartToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">作業時間（分）</label>
+            <input type="range" class="slider-input" id="workDurationSlider" min="1" max="60" value="25">
+            <div class="slider-value"><span id="workDurationValue">25</span>分</div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">短い休憩（分）</label>
+            <input type="range" class="slider-input" id="shortBreakSlider" min="1" max="30" value="5">
+            <div class="slider-value"><span id="shortBreakValue">5</span>分</div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">長い休憩（分）</label>
+            <input type="range" class="slider-input" id="longBreakSlider" min="1" max="60" value="15">
+            <div class="slider-value"><span id="longBreakValue">15</span>分</div>
+        </div>
+    </div>
+
+    <div class="notification-badge" id="notificationBadge">
+        <span class="notification-icon">🎉</span>
+        <span class="notification-text" id="notificationText"></span>
+    </div>
+
+    <script>
+        const settings = {
+            workDuration: 25,
+            shortBreakDuration: 5,
+            longBreakDuration: 15,
+            notificationsEnabled: true,
+            soundEnabled: true,
+            autoStart: false,
+            volume: 0.5,
+            theme: 'light'
+        };
+
+        function loadSettings() {
+            const saved = localStorage.getItem('pomodoroSettings');
+            if (saved) {
+                Object.assign(settings, JSON.parse(saved));
+            }
+            applySettings();
+        }
+
+        function saveSettings() {
+            localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
+        }
+
+        function applySettings() {
+            document.getElementById('notificationToggle').checked = settings.notificationsEnabled;
+            document.getElementById('soundToggle').checked = settings.soundEnabled;
+            document.getElementById('autoStartToggle').checked = settings.autoStart;
+            document.getElementById('volumeSlider').value = settings.volume * 100;
+            document.getElementById('volumeValue').textContent = Math.round(settings.volume * 100);
+            document.getElementById('workDurationSlider').value = settings.workDuration;
+            document.getElementById('workDurationValue').textContent = settings.workDuration;
+            document.getElementById('shortBreakSlider').value = settings.shortBreakDuration;
+            document.getElementById('shortBreakValue').textContent = settings.shortBreakDuration;
+            document.getElementById('longBreakSlider').value = settings.longBreakDuration;
+            document.getElementById('longBreakValue').textContent = settings.longBreakDuration;
+            document.documentElement.setAttribute('data-theme', settings.theme);
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = settings.theme === 'dark' ? '☀️' : '🌙';
+            document.getElementById('themeToggle').textContent = icon;
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            settings.theme = settings.theme === 'light' ? 'dark' : 'light';
+            saveSettings();
+            applySettings();
+        });
+
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            document.getElementById('settingsPanel').classList.add('open');
+        });
+
+        document.getElementById('closeSettings').addEventListener('click', () => {
+            document.getElementById('settingsPanel').classList.remove('open');
+        });
+
+        document.getElementById('notificationToggle').addEventListener('change', (e) => {
+            settings.notificationsEnabled = e.target.checked;
+            if (settings.notificationsEnabled && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+            saveSettings();
+        });
+
+        document.getElementById('soundToggle').addEventListener('change', (e) => {
+            settings.soundEnabled = e.target.checked;
+            saveSettings();
+        });
+
+        document.getElementById('autoStartToggle').addEventListener('change', (e) => {
+            settings.autoStart = e.target.checked;
+            saveSettings();
+        });
+
+        document.getElementById('volumeSlider').addEventListener('input', (e) => {
+            settings.volume = e.target.value / 100;
+            document.getElementById('volumeValue').textContent = e.target.value;
+            saveSettings();
+        });
+
+        document.getElementById('workDurationSlider').addEventListener('input', (e) => {
+            settings.workDuration = parseInt(e.target.value);
+            document.getElementById('workDurationValue').textContent = e.target.value;
+            saveSettings();
+            updateModeButtons();
+        });
+
+        document.getElementById('shortBreakSlider').addEventListener('input', (e) => {
+            settings.shortBreakDuration = parseInt(e.target.value);
+            document.getElementById('shortBreakValue').textContent = e.target.value;
+            saveSettings();
+            updateModeButtons();
+        });
+
+        document.getElementById('longBreakSlider').addEventListener('input', (e) => {
+            settings.longBreakDuration = parseInt(e.target.value);
+            document.getElementById('longBreakValue').textContent = e.target.value;
+            saveSettings();
+            updateModeButtons();
+        });
+
+        function updateModeButtons() {
+            const buttons = document.querySelectorAll('.mode-btn');
+            buttons[0].textContent = `🎯 作業 (${settings.workDuration}分)`;
+            buttons[1].textContent = `☕ 短い休憩 (${settings.shortBreakDuration}分)`;
+            buttons[2].textContent = `🌴 長い休憩 (${settings.longBreakDuration}分)`;
+        }
+
+        let currentMode = 'work';
+        let timeLeft = settings.workDuration * 60;
+        let totalTime = settings.workDuration * 60;
+        let timerInterval = null;
+        let isRunning = false;
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const progressCircle = document.getElementById('progressCircle');
+        const circumference = 2 * Math.PI * 140;
+        progressCircle.style.strokeDasharray = circumference;
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            const progress = 1 - (timeLeft / totalTime);
+            const offset = circumference * progress;
+            progressCircle.style.strokeDashoffset = offset;
+
+            document.title = `${timerDisplay.textContent} - Pomodoro Pro`;
+        }
+
+        function switchMode(mode) {
+            if (isRunning) return;
+
+            currentMode = mode;
+            const modeDurations = {
+                work: settings.workDuration,
+                shortBreak: settings.shortBreakDuration,
+                longBreak: settings.longBreakDuration
+            };
+
+            timeLeft = modeDurations[mode] * 60;
+            totalTime = timeLeft;
+            updateDisplay();
+
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+        }
+
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchMode(btn.dataset.mode);
+            });
+        });
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    handleTimerComplete();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            const modeDurations = {
+                work: settings.workDuration,
+                shortBreak: settings.shortBreakDuration,
+                longBreak: settings.longBreakDuration
+            };
+            timeLeft = modeDurations[currentMode] * 60;
+            totalTime = timeLeft;
+            updateDisplay();
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startTimer);
+        document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
+        document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+        function playNotification() {
+            if (!settings.soundEnabled) return;
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(settings.volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        function showDesktopNotification(title, message) {
+            if (!settings.notificationsEnabled) return;
+
+            if (Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message,
+                    icon: '🍅',
+                    badge: '🍅'
+                });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification(title, {
+                            body: message,
+                            icon: '🍅',
+                            badge: '🍅'
+                        });
+                    }
+                });
+            }
+        }
+
+        // In-app notification
+        function showNotification(text) {
+            const badge = document.getElementById('notificationBadge');
+            document.getElementById('notificationText').textContent = text;
+            badge.classList.add('show');
+            setTimeout(() => {
+                badge.classList.remove('show');
+            }, 4000);
+        }
+
+        function handleTimerComplete() {
+            playNotification();
+
+            if (currentMode === 'work') {
+                saveCompletedSession();
+                showDesktopNotification('作業完了！', 'お疲れ様でした！休憩を取りましょう。');
+                showNotification('作業完了！休憩を取りましょう 🎉');
+
+                if (settings.autoStart) {
+                    setTimeout(() => {
+                        switchMode('shortBreak');
+                        startTimer();
+                    }, 3000);
+                }
+            } else {
+                showDesktopNotification('休憩終了！', '次の作業を始めましょう。');
+                showNotification('休憩終了！次の作業を始めましょう 💪');
+
+                if (settings.autoStart) {
+                    setTimeout(() => {
+                        switchMode('work');
+                        startTimer();
+                    }, 3000);
+                }
+            }
+        }
+
+        // Task management
+        function saveTasks() {
+            const tasks = [];
+            document.querySelectorAll('.task-item').forEach(item => {
+                tasks.push({
+                    text: item.querySelector('.task-text').textContent,
+                    completed: item.classList.contains('completed')
+                });
+            });
+            localStorage.setItem('pomodoroTasks', JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            const saved = localStorage.getItem('pomodoroTasks');
+            if (saved) {
+                const tasks = JSON.parse(saved);
+                tasks.forEach(task => addTask(task.text, task.completed));
+            }
+        }
+
+        function addTask(text, completed = false) {
+            const li = document.createElement('li');
+            li.className = 'task-item' + (completed ? ' completed' : '');
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'task-checkbox';
+            checkbox.checked = completed;
+            checkbox.addEventListener('change', () => {
+                li.classList.toggle('completed');
+                saveTasks();
+            });
+
+            const span = document.createElement('span');
+            span.className = 'task-text';
+            span.textContent = text;
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = '削除';
+            deleteBtn.addEventListener('click', () => {
+                li.remove();
+                saveTasks();
+            });
+
+            li.appendChild(checkbox);
+            li.appendChild(span);
+            li.appendChild(deleteBtn);
+            document.getElementById('taskList').appendChild(li);
+        }
+
+        document.getElementById('addTaskBtn').addEventListener('click', () => {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            if (text) {
+                addTask(text);
+                input.value = '';
+                saveTasks();
+            }
+        });
+
+        document.getElementById('taskInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('addTaskBtn').click();
+            }
+        });
+
+        // Statistics
+        function saveCompletedSession() {
+            const today = new Date().toDateString();
+            const stats = JSON.parse(localStorage.getItem('pomodoroStats') || '{}');
+
+            if (!stats[today]) {
+                stats[today] = { sessions: 0 };
+            }
+            stats[today].sessions++;
+
+            localStorage.setItem('pomodoroStats', JSON.stringify(stats));
+            updateStats();
+        }
+
+        function updateStats() {
+            const today = new Date().toDateString();
+            const stats = JSON.parse(localStorage.getItem('pomodoroStats') || '{}');
+
+            document.getElementById('todayCount').textContent = stats[today]?.sessions || 0;
+
+            const chart = document.getElementById('weeklyChart');
+            chart.innerHTML = '';
+
+            const last7Days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                last7Days.push(date);
+            }
+
+            const maxSessions = Math.max(...last7Days.map(d => stats[d.toDateString()]?.sessions || 0), 1);
+
+            last7Days.forEach(date => {
+                const dateStr = date.toDateString();
+                const sessions = stats[dateStr]?.sessions || 0;
+                const height = (sessions / maxSessions) * 100;
+                const dayLabel = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
+
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                bar.style.height = height + '%';
+                bar.title = `${sessions} セッション`;
+
+                const label = document.createElement('div');
+                label.className = 'chart-label';
+                label.textContent = dayLabel;
+                bar.appendChild(label);
+
+                if (sessions > 0) {
+                    const value = document.createElement('div');
+                    value.className = 'chart-value';
+                    value.textContent = sessions;
+                    bar.appendChild(value);
+                }
+
+                chart.appendChild(bar);
+            });
+        }
+
+        if (settings.notificationsEnabled && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        loadSettings();
+        loadTasks();
+        updateStats();
+        updateDisplay();
+        updateModeButtons();
+    </script>
+</body>
+
+</html>
